@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Little Secret ❤️</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: black;
+    overflow: hidden;
+    font-family: monospace;
+    height: 100vh;
+}
+
+/* PASSWORD SCREEN */
+
+#login {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    color: #ff2020;
+    text-align: center;
+}
+
+#login h1 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px red;
+    letter-spacing: 3px;
+}
+
+#login p {
+    color: #ff7777;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+#password {
+    background: black;
+    border: 2px solid #ff2020;
+    padding: 12px;
+    color: red;
+    font-family: monospace;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+    width: 220px;
+    box-shadow: 0 0 12px #ff000055;
+}
+
+#password::placeholder {
+    color: #773333;
+}
+
+#unlock {
+    margin-top: 18px;
+    padding: 12px 30px;
+    background: #ff1010;
+    color: black;
+    border: none;
+    font-family: monospace;
+    font-weight: bold;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: 0.2s;
+}
+
+#unlock:hover {
+    background: white;
+    box-shadow: 0 0 20px red;
+}
+
+#error {
+    margin-top: 20px;
+    color: #ff5555;
+    font-size: 12px;
+}
+
+/* HEART ANIMATION */
+
+#secret {
+    display: none;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PASSWORD SCREEN -->
+
+<div id="login">
+
+    <h1>A LITTLE SECRET</h1>
+
+    <p>Enter the password to unlock something special...</p>
+
+    <input
+        type="password"
+        id="password"
+        placeholder="Enter password"
+        autocomplete="off"
+    >
+
+    <button id="unlock">UNLOCK ♥</button>
+
+    <div id="error"></div>
+
+</div>
+
+
+<!-- SECRET ANIMATION -->
+
+<div id="secret">
+    <canvas id="screen"></canvas>
+</div>
+
+
+<script>
+
+// PASSWORD SYSTEM
+
+const correctPassword = "11/1/26";
+let firstAttempt = true;
+
+const passwordInput = document.getElementById("password");
+const unlockButton = document.getElementById("unlock");
+
+function checkPassword() {
+
+    const enteredPassword = passwordInput.value;
+
+    if (enteredPassword === correctPassword) {
+
+        document.getElementById("login").style.display = "none";
+        document.getElementById("secret").style.display = "block";
+
+        startAnimation();
+
+    } else {
+
+        if (firstAttempt) {
+
+            alert("Hint: Our anniversary date!");
+
+            firstAttempt = false;
+
+        } else {
+
+            document.getElementById("error").textContent =
+                "Wrong password. Try again! ♥";
+
+        }
+
+        passwordInput.value = "";
+
+    }
+
+}
+
+unlockButton.addEventListener("click", checkPassword);
+
+passwordInput.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        checkPassword();
+    }
+});
+
+
+// PIXEL HEART ANIMATION
+
+function startAnimation() {
+
+const canvas = document.getElementById("screen");
+const ctx = canvas.getContext("2d");
+
+const W = 320;
+const H = 180;
+
+canvas.width = W;
+canvas.height = H;
+
+ctx.imageSmoothingEnabled = false;
+
+const heartPattern = [
+    "01100110",
+    "11111111",
+    "11111111",
+    "11111111",
+    "01111110",
+    "00111100",
+    "00011000"
+];
+
+const letters = {
+    "I": ["11111","00100","00100","00100","00100","00100","11111"],
+    "L": ["10000","10000","10000","10000","10000","10000","11111"],
+    "O": ["01110","10001","10001","10001","10001","10001","01110"],
+    "V": ["10001","10001","10001","10001","01010","01010","00100"],
+    "E": ["11111","10000","10000","11110","10000","10000","11111"],
+    "Y": ["10001","10001","01010","00100","00100","00100","00100"],
+    "U": ["10001","10001","10001","10001","10001","10001","01110"]
+};
+
+let fallingHearts = [];
+
+function drawPixelHeart(x, y, size, color) {
+
+    ctx.fillStyle = color;
+
+    for (let row = 0; row < heartPattern.length; row++) {
+
+        for (let col = 0; col < heartPattern[row].length; col++) {
+
+            if (heartPattern[row][col] === "1") {
+
+                ctx.fillRect(
+                    x + col * size,
+                    y + row * size,
+                    size,
+                    size
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+function drawText(text, x, y, scale) {
+
+    const charWidth = 6 * scale;
+    const totalWidth = text.length * charWidth - scale;
+
+    x -= totalWidth / 2;
+
+    for (let char of text) {
+
+        if (char === " ") {
+            x += charWidth;
+            continue;
+        }
+
+        const pattern = letters[char];
+
+        for (let row = 0; row < pattern.length; row++) {
+
+            for (let col = 0; col < pattern[row].length; col++) {
+
+                if (pattern[row][col] === "1") {
+
+                    ctx.fillRect(
+                        x + col * scale,
+                        y + row * scale,
+                        scale,
+                        scale
+                    );
+
+                }
+
+            }
+
+        }
+
+        x += charWidth;
+
+    }
+
+}
+
+function createFallingHeart() {
+
+    fallingHearts.push({
+
+        x: Math.random() * W,
+        y: -10,
+        size: Math.random() * 1.5 + 1,
+        speed: Math.random() * 0.5 + 0.3,
+        opacity: Math.random() * 0.7 + 0.2
+
+    });
+
+}
+
+function animate(time) {
+
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    // Falling background hearts
+
+    for (let i = fallingHearts.length - 1; i >= 0; i--) {
+
+        const heart = fallingHearts[i];
+
+        heart.y += heart.speed;
+
+        ctx.globalAlpha = heart.opacity;
+
+        drawPixelHeart(
+            heart.x,
+            heart.y,
+            heart.size,
+            "#ff1010"
+        );
+
+        if (heart.y > H) {
+            fallingHearts.splice(i, 1);
+        }
+
+    }
+
+    ctx.globalAlpha = 1;
+
+    // Main beating heart
+
+    const beat = 1 + Math.max(0, Math.sin(time / 160)) * 0.12;
+
+    const size = 5 * beat;
+
+    const heartWidth = 8 * size;
+    const heartHeight = 7 * size;
+
+    const x = (W - heartWidth) / 2;
+    const y = 48 + (heartHeight * (1 - beat)) / 2;
+
+    ctx.shadowColor = "red";
+    ctx.shadowBlur = 20;
+
+    drawPixelHeart(x, y, size, "#ff1010");
+
+    ctx.shadowBlur = 0;
+
+    // I LOVE YOU text
+
+    ctx.fillStyle = "#ff2020";
+    ctx.shadowColor = "red";
+    ctx.shadowBlur = 10;
+
+    drawText("I LOVE YOU", W / 2, 115, 2);
+
+    ctx.shadowBlur = 0;
+
+    requestAnimationFrame(animate);
+
+}
+
+for (let i = 0; i < 35; i++) {
+    createFallingHeart();
+}
+
+setInterval(createFallingHeart, 180);
+
+animate(0);
+
+}
+
+</script>
+
+</body>
+</html>
